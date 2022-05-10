@@ -2,14 +2,19 @@ package recipe
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+
+	"github.com/HuangXiaoL/HomeCookingAPI/pkg/file"
 )
 
 func Init() {
@@ -18,8 +23,28 @@ func Init() {
 	for i := 1; i <= 405; i++ {
 		getRecipeInfo(i)
 	}
-	//getRecipeInfo(1)
+	s,_:=json.Marshal(StorageRecipeInfoArr)
+	err := ioutil.WriteFile(file.DownloadResources+"/infoDate.txt", s, 0777)
+	if err!=nil {
+		log.Println("初始化基本数据失败")
+	}
 
+}
+
+// InitData 初始化数据
+func InitData()  {
+	StorageRecipeInfoArr = []*StorageRecipeInfo{}
+	resData,err:=ioutil.ReadFile(file.DownloadResources+"/infoDate.txt")
+	if err!=nil {
+		log.Println(err)
+		return
+	}
+
+	if err:=json.Unmarshal(resData,&StorageRecipeInfoArr);err!=nil{
+		log.Println(err)
+		return
+	}
+	log.Println("初始化本地数据成功")
 }
 
 // ReturnDish 返回个菜品
